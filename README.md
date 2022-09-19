@@ -4,7 +4,7 @@ This python script uses the TFL api to get status updates for London underground
 
 ## Requirements
 
-Python 3.7.x or newer
+Python 3.7.x or newer.
 
 ## Dependencies
 
@@ -23,4 +23,4 @@ https://discordpy.readthedocs.io/en/stable/discord.html
 
 There are 2 variables that need to be set; _token_ and _channel\_id_ which are the respective bot token and id of the discord channel where the bot will post the message. These variables can either be set in the script or as an environment variable.
 
-It can also be setup as on a schedule via Task Scheduler on *Windows*, launchd on *MacOS* or cron on *Linux*
+It can also be setup as on a schedule via Task Scheduler on *Windows*, launchd on *MacOS* or cron on *Linux*.
