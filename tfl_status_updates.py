@@ -27,7 +27,7 @@ def parse_json(response: list) -> dict:
         line_statuses = {}
         for line in response:
             name = line["name"]
-            if line['lineStatuses'][0]['statusSeverity'] == 10:  # if there is a good service
+            if line["lineStatuses"][0]["statusSeverity"] == 10:  # if there is a good service
                 status = line["lineStatuses"][0]["statusSeverityDescription"]
                 line_statuses[name] = f"{name}: {status}"
             else:
@@ -79,39 +79,37 @@ def build_message(statuses: dict, favourites: list) -> str:
 
 
 def main():
-    url = "https://api.tfl.gov.uk/line/mode/tube/status"
-    response = tfl_api_call(url)
-    parsed_response = parse_json(response)
-
-    if isinstance(parsed_response, dict):
-        favourites = ["Jubilee", "Bakerloo", "Metropolitan"]  # lines to display at the top of the message
-        message = build_message(parsed_response, favourites)
-        return message
-    else:
-        return parsed_response  # returns the error
-
-
-if __name__ == "__main__":
     client = discord.Client()
     token = os.environ.get("DISCORD_BOT_TOKEN")
     channel_id = int(os.environ.get("DISCORD_CHANNEL_ID"))
-    date = datetime.now().strftime("%Y/%m/%d %H:%M:%S BST")
-
+    url = "https://api.tfl.gov.uk/line/mode/tube/status"
+    
     @client.event
     async def on_ready():
-        channel = client.get_channel(channel_id)
-        tfl_status = main()
-        # discord limits a message to 2000 characters so this splits the message into 2 if it's too long
-        if len(tfl_status) < 2000:
-            await channel.send(tfl_status)
-        else:
-            split_point = "> **🟩 District"
-            split_message = tfl_status.split(split_point)
-            split_message[1] = split_point + split_message[1]
+        channel = client.get_channel(channel_id)    
+        response = tfl_api_call(url)
+        parsed_response = parse_json(response)
 
-            for message in split_message:
+        if isinstance(parsed_response, dict):
+            favourites = ["Jubilee", "Bakerloo", "Metropolitan"]  # lines to display at the top of the message
+            message = build_message(parsed_response, favourites)
+            # discord limits a message to 2000 characters so this splits the message into 2 if it's too long
+            if len(message) < 2000:
                 await channel.send(message)
+            else:
+                split_point = "> **🟩 District"
+                split_message = message.split(split_point)
+                split_message[1] = split_point + split_message[1]
+
+                for message in split_message:
+                    await channel.send(message)            
+        else:
+            await channel.send(parsed_response)  # returns the error
 
         await client.close()
 
     client.run(token)
+
+
+if __name__ == "__main__":
+    main()
